@@ -1,6 +1,8 @@
 const express = require('express')
 var morgan = require('morgan')
 const app = express()
+const cors = require('cors')
+
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 let persons =[
   { 
@@ -35,6 +37,7 @@ const requestLogger = (request, response, next) => {
   app.use(express.json()) //Notice that json-parser is taken into use before the requestLogger middleware, because otherwise request.body will not be initialized when the logger is executed!
   app.use(requestLogger)
   app.use(morgan(':method :url :status :response-time[digits] :response-time ms - :body'))
+  app.use(cors())
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const generateId = () => {
     const maxId = persons.length > 0
@@ -75,7 +78,7 @@ const generateId = () => {
   
   app.use(morgan(':method :url :status :response-time[digits] :response-time ms - :body'))
   /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-  app.get('/', (request, response) => { // The event handler function accepts two parameters. The first request parameter contains all of the information of the HTTP request, and the second response parameter is used to define how the request is responded to.
+  app.get('/api/persons', (request, response) => { // The event handler function accepts two parameters. The first request parameter contains all of the information of the HTTP request, and the second response parameter is used to define how the request is responded to.
     response.send(persons)
   })
   /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -106,9 +109,10 @@ app.delete('/api/persons/:id', (request, response) => {
   
   app.use(unknownEndpoint)
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-const PORT = 12000
-app.listen(PORT) //* Binds the http server assigned to the app variable, to listen to HTTP requests sent to the port 3001:
-console.log(`Server running on port ${PORT}`)
+const PORT = process.env.PORT || 12000
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
 
 
 
