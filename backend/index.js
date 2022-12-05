@@ -103,6 +103,19 @@ app.delete('/api/persons/:id', (request, response) => {
   }
   })
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+app.put('/api/persons/:id', (request, response, next) => {
+  const { content, important } = request.body
+
+  persons.findByIdAndUpdate(request.params.id,
+    { content, important },
+    { new: true, runValidators: true, context: 'query' }
+  )
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
+})
+/* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   const unknownEndpoint = (request, response) => { // This means that we are defining middleware functions that are only called if no route handles the HTTP request.
     response.status(404).send({ error: 'unknown endpoint' }) // is used for catching requests made to non-existent routes
   }
