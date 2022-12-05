@@ -1,6 +1,6 @@
-# fly.toml file generated for phonebook-- on 2022-12-05T13:21:26+02:00
+# fly.toml file generated for orelso-phonebook on 2022-12-05T15:00:56+02:00
 
-app = "phonebook--"
+app = "orelso-phonebook"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
