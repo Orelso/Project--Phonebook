@@ -103,17 +103,16 @@ app.delete('/api/persons/:id', (request, response) => {
   }
   })
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-app.put('/api/persons/:id', (request, response, next) => {
-  const { content, important } = request.body
 
-  persons.findByIdAndUpdate(request.params.id,
-    { content, important },
-    { new: true, runValidators: true, context: 'query' }
-  )
-    .then(updatedPerson => {
-      response.json(updatedPerson)
-    })
-    .catch(error => next(error))
+app.put('/api/persons/:id', (request, response) => {
+  const body = req.body
+
+  const persons = {
+    content: body.content,
+    important: body.important,
+  }
+  response.send(persons)
+
 })
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   const unknownEndpoint = (request, response) => { // This means that we are defining middleware functions that are only called if no route handles the HTTP request.
