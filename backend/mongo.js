@@ -5,6 +5,8 @@ if (process.argv.length < 3) {
   process.exit(1)
 }
 
+
+
 const password = process.argv[2]
 
 const url = `mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority`
@@ -24,24 +26,25 @@ mongoose
   .then((result) => {
     console.log('connected')
 
-    // const person = new Person({
-    //   content: 'John',
-    //   date: new Date().toISOString(),
-    //   number: 465131153,
-    //   important: true,
-    // })
+    const person = new Person({
+      content: process.argv[3],
+      date:new Date(),
+      number: process.argv[4],
+      important: true,
+    })
+    
+    console.log("------------------------------------------------------",person, "---------------------------------------------------");
+    person.save().then(result => {
+        console.log('Person Saved!')
+      }) 
+      .catch((err) => console.log(err))
 
-    Person.find({}).then(result => {
+    return Person.find({}).then(result => {
         result.forEach(person => {
           console.log(person)
         })
         mongoose.connection.close()
       })
-
-    return Person.find()
+    //   return person.save()
   })
-  .then(() => {
-    console.log('Person Saved!')
-    return mongoose.connection.close()
-  })
-  .catch((err) => console.log(err))
+  

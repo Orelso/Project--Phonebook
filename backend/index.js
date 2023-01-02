@@ -27,26 +27,26 @@ let persons =[
   }
 ]
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
 
-if (process.argv.length < 3) {
-  console.log('Please provide the password as an argument: node mongo.js <password>')
-  process.exit(1)
-}
+// if (process.argv.length < 3) {
+//   console.log('Please provide the password as an argument: node mongo.js <password>')
+//   process.exit(1)
+// }
 
-const password = process.argv[2]
+// const password = process.argv[2]
 
-const url = `mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority`
+// const url = `mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority`
 
 
-const personSchema = new mongoose.Schema({
-  content: String,
-  date: Date,
-  number: Number,
-  important: Boolean,
-})
+// const personSchema = new mongoose.Schema({
+//   content: String,
+//   date: Date,
+//   number: Number,
+//   important: Boolean,
+// })
 
-const Person = mongoose.model('Person', personSchema)
+// const Person = mongoose.model('Person', personSchema)
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method)
