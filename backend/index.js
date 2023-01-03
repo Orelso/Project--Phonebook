@@ -1,7 +1,10 @@
 const express = require('express')
-var morgan = require('morgan')
 const app = express()
 const cors = require('cors')
+require('dotenv').config()
+const Person = require('./models/person')
+
+var morgan = require('morgan')
 app.use(express.static('build'))
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 let persons =[
@@ -27,26 +30,34 @@ let persons =[
   }
 ]
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-// const mongoose = require('mongoose')
+const mongoose = require('mongoose')
 
-// if (process.argv.length < 3) {
-//   console.log('Please provide the password as an argument: node mongo.js <password>')
-//   process.exit(1)
-// }
+if (process.argv.length < 3) {
+  console.log('Please provide the password as an argument: node mongo.js <password>')
+  process.exit(1)
+}
 
-// const password = process.argv[2]
+const password = process.argv[2]
 
-// const url = `mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority`
+const url = `mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority`
 
 
-// const personSchema = new mongoose.Schema({
-//   content: String,
-//   date: Date,
-//   number: Number,
-//   important: Boolean,
+const personSchema = new mongoose.Schema({
+  content: String,
+  date: Date,
+  number: Number,
+  important: Boolean,
+})
+
+// personSchema.set('toJSON', {
+//   transform: (document, returnedObject) => {
+//     returnedObject.id = returnedObject._id.toString()
+//     delete returnedObject._id
+//     delete returnedObject.__v
+//   }
 // })
 
-// const Person = mongoose.model('Person', personSchema)
+const Person = mongoose.model('Person', personSchema)
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method)
@@ -66,9 +77,13 @@ const generateId = () => {
       : 0
     return maxId + 1
   }
-  
+/* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   app.post('/api/persons', (request, response) => {
     const body = request.body
+
+    if (body.content === undefined) {
+      return response.status(400).json({ error: 'content missing' })
+    }
 
     const exists = persons.find((checkPerson) => {
       return checkPerson.name === body.name && checkPerson.number === body.number;
@@ -88,11 +103,15 @@ const generateId = () => {
       date: new Date(),
       id: generateId(),
     }
+
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
   
     persons = persons.concat(person)
     response.json(person)
   })
-
+/* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   morgan.token('body', req => {
     return JSON.stringify(req.body)
   })
@@ -100,7 +119,9 @@ const generateId = () => {
   app.use(morgan(':method :url :status :response-time[digits] :response-time ms - :body'))
   /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   app.get('/api/persons', (request, response) => { // The event handler function accepts two parameters. The first request parameter contains all of the information of the HTTP request, and the second response parameter is used to define how the request is responded to.
+    Person.find({}).then(persons => {
     response.send(persons)
+    })
   })
   /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   app.get('/api/persons/:id', (request, response) => { // The second route defines an event handler that handles HTTP GET requests made to the persons path of the application.--- Now app.get('/api/persons/:id', ...) will handle all HTTP GET requests that are of the form /api/persons/SOMETHING, where SOMETHING is an arbitrary string.
