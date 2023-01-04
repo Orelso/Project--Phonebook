@@ -42,7 +42,7 @@ mongoose
       })
     
     console.log("------------------------------------------------------",person, "---------------------------------------------------");
-    person.save().then(result => {
+    Person.save().then(result => {
         console.log('Person Saved!')
       }) 
       .catch((err) => console.log(err))

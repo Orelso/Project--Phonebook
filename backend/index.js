@@ -2,10 +2,10 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 require('dotenv').config()
-const Person = require('./models/person')
 
 var morgan = require('morgan')
 app.use(express.static('build'))
+
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 let persons =[
   { 
@@ -31,6 +31,7 @@ let persons =[
 ]
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const mongoose = require('mongoose')
+// const Person = require('./models/person')
 
 if (process.argv.length < 3) {
   console.log('Please provide the password as an argument: node mongo.js <password>')
@@ -39,8 +40,14 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2]
 
-const url = `mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority`
+const url = 'mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority'
 
+mongoose.connect(url).then(result => {
+  console.log('connected to MongoDB')
+})
+.catch((error) => {
+  console.log('error connecting to MongoDB:', error.message)
+})
 
 const personSchema = new mongoose.Schema({
   content: String,
@@ -104,9 +111,9 @@ const generateId = () => {
       id: generateId(),
     }
 
-    person.save().then(savedPerson => {
-      response.json(savedPerson)
-    })
+    // person.save().then(savedPerson => {
+    //   response.json(savedPerson)
+    // })
   
     persons = persons.concat(person)
     response.json(person)
