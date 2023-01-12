@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
     content: String,
     date: Date,
     number: Number,
-    important: Boolean,
+    important: { type: Boolean, default: false }
   })
 
 personSchema.set('toJSON', {

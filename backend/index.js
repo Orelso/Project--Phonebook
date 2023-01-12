@@ -33,6 +33,8 @@ let persons =[
 const mongoose = require('mongoose')
 const Person = require('./models/person')
 
+
+
 // if (process.argv.length < 3) {
 //   console.log('Please provide the password as an argument: node mongo.js <password>')
 //   process.exit(1)
@@ -57,8 +59,9 @@ const personSchema = new mongoose.Schema({
   content: String,
   date: Date,
   number: Number,
-  important: Boolean,
+  important: { type: Boolean, default: false }
 })
+// const Person = mongoose.model("Person", personSchema);
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const requestLogger = (request, response, next) => {
@@ -150,16 +153,24 @@ app.delete('/api/persons/:id', async (request, response) => {
 })
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-app.put('/api/persons/:id', (request, response) => {
-  const body = request.body
+app.put('/api/persons/:id', (req, res, next) => {
+  console.log(req.body.important); // check if the important field is being passed correctly
 
-  const persons = {
-    content: body.content,
-    important: body.important,
+  const id = req.params.id
+  const person = {
+      name: req.body.name,
+      number: req.body.number,
+      important: req.body.important
+
   }
-  response.send(persons)
 
+  Person.findByIdAndUpdate(id, person, { new: true })
+      .then(updatedPerson => {
+          res.json(updatedPerson)
+      })
+      .catch(error => next(error))
 })
+
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   const unknownEndpoint = (request, response) => { // This means that we are defining middleware functions that are only called if no route handles the HTTP request.
     response.status(404).send({ error: 'unknown endpoint' }) // is used for catching requests made to non-existent routes
