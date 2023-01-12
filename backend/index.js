@@ -7,28 +7,28 @@ var morgan = require('morgan')
 app.use(express.static('build'))
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-// let persons =[
-//   { 
-//     "id": 1,
-//     "name": "Arto Hellas", 
-//     "number": "040-123456"
-//   },
-//   { 
-//     "id": 2,
-//     "name": "Ada Lovelace", 
-//     "number": "39-44-5323523"
-//   },
-//   { 
-//     "id": 3,
-//     "name": "Dan Abramov", 
-//     "number": "12-43-234345"
-//   },
-//   {  
-//     "id": 4,
-//     "name": "Mary Poppendieck", 
-//     "number": "39-23-6423122"
-//   }
-// ]
+let persons =[
+  { 
+    "id": 1,
+    "name": "Arto Hellas", 
+    "number": "040-123456"
+  },
+  { 
+    "id": 2,
+    "name": "Ada Lovelace", 
+    "number": "39-44-5323523"
+  },
+  { 
+    "id": 3,
+    "name": "Dan Abramov", 
+    "number": "12-43-234345"
+  },
+  {  
+    "id": 4,
+    "name": "Mary Poppendieck", 
+    "number": "39-23-6423122"
+  }
+]
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const mongoose = require('mongoose')
 const Person = require('./models/person')
@@ -73,12 +73,12 @@ const requestLogger = (request, response, next) => {
   app.use(morgan(':method :url :status :response-time[digits] :response-time ms - :body'))
   app.use(cors())
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-const generateId = () => {
-    const maxId = persons.length > 0
-      ? Math.max(...persons.map(n => n.id)) // persons.map(n => n.id) creates a new array that contains all the ids of the persons. Math.max returns the maximum value of the numbers that are passed to it. However, persons.map(n => n.id) is an array so it can't directly be given as a parameter to Math.max. The array can be transformed into individual numbers by using the "three dot" spread syntax ....
-      : 0
-    return maxId + 1
-  }
+// const generateId = () => {
+//     const maxId = persons.length > 0
+//       ? Math.max(...persons.map(n => n.id)) // persons.map(n => n.id) creates a new array that contains all the ids of the persons. Math.max returns the maximum value of the numbers that are passed to it. However, persons.map(n => n.id) is an array so it can't directly be given as a parameter to Math.max. The array can be transformed into individual numbers by using the "three dot" spread syntax ....
+//       : 0
+//     return maxId + 1
+//   }
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
   app.post('/api/persons', async (request, response) => {
     const body = request.body
@@ -102,7 +102,7 @@ const generateId = () => {
       number: body.number,
       important: body.important || false, // To be exact, when the important property is false, then the body.important || false expression will in fact return the false from the right-hand side..
       date: new Date(),
-      id: generateId(),
+      // id: generateId(),
     })
 
     // person.save().then(savedPerson => {
@@ -137,19 +137,21 @@ const generateId = () => {
       }
   })
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
-  if (persons) {
-    response.json(persons)
-  } else {
-    response.status(204).end()
+app.delete('/api/persons/:id', async (request, response) => {
+  const id = request.params.id
+  console.log("-------",id)
+  const person = await Person.findById(id)
+  console.log(person)
+  if(person === null) {
+      return response.status(404).json({ error: 'person not found' })
   }
-  })
+  await Person.findByIdAndRemove(id)
+  response.status(204).end()
+})
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 app.put('/api/persons/:id', (request, response) => {
-  const body = req.body
+  const body = request.body
 
   const persons = {
     content: body.content,
