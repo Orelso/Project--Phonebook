@@ -7,47 +7,51 @@ var morgan = require('morgan')
 app.use(express.static('build'))
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-let persons =[
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  {  
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
+// let persons =[
+//   { 
+//     "id": 1,
+//     "name": "Arto Hellas", 
+//     "number": "040-123456"
+//   },
+//   { 
+//     "id": 2,
+//     "name": "Ada Lovelace", 
+//     "number": "39-44-5323523"
+//   },
+//   { 
+//     "id": 3,
+//     "name": "Dan Abramov", 
+//     "number": "12-43-234345"
+//   },
+//   {  
+//     "id": 4,
+//     "name": "Mary Poppendieck", 
+//     "number": "39-23-6423122"
+//   }
+// ]
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const mongoose = require('mongoose')
-// const Person = require('./models/person')
+const Person = require('./models/person')
 
-if (process.argv.length < 3) {
-  console.log('Please provide the password as an argument: node mongo.js <password>')
-  process.exit(1)
-}
+// if (process.argv.length < 3) {
+//   console.log('Please provide the password as an argument: node mongo.js <password>')
+//   process.exit(1)
+// }
 
-const password = process.argv[2]
+// const password = process.argv[2]
 
-const url = 'mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority'
+// const url = 'mongodb+srv://phonebook:phonebook1@cluster0.xewuh4u.mongodb.net/phonebookApp?retryWrites=true&w=majority'
+const url = process.env.MONGODB_URI
 
-mongoose.connect(url).then(result => {
-  console.log('connected to MongoDB')
-})
-.catch((error) => {
-  console.log('error connecting to MongoDB:', error.message)
-})
+console.log('connecting to', url)
+
+mongoose.connect(url)
+  .then(result => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connecting to MongoDB:', error.message)
+  })
 
 const personSchema = new mongoose.Schema({
   content: String,
@@ -56,15 +60,6 @@ const personSchema = new mongoose.Schema({
   important: Boolean,
 })
 
-// personSchema.set('toJSON', {
-//   transform: (document, returnedObject) => {
-//     returnedObject.id = returnedObject._id.toString()
-//     delete returnedObject._id
-//     delete returnedObject.__v
-//   }
-// })
-
-const Person = mongoose.model('Person', personSchema)
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method)
@@ -85,7 +80,7 @@ const generateId = () => {
     return maxId + 1
   }
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-  app.post('/api/persons', (request, response) => {
+  app.post('/api/persons', async (request, response) => {
     const body = request.body
 
     if (body.content === undefined) {
@@ -93,8 +88,8 @@ const generateId = () => {
     }
 
     const exists = persons.find((checkPerson) => {
-      return checkPerson.name === body.name && checkPerson.number === body.number;
-    });
+      return checkPerson.content === body.content && checkPerson.number === body.number;
+    }); 
   
     if (exists) {
       return response.status(400).json({ 
@@ -102,20 +97,20 @@ const generateId = () => {
       })
     } 
   
-    const person = {
+    const person = new Person({
       content: body.content,
-      name: body.name,
       number: body.number,
       important: body.important || false, // To be exact, when the important property is false, then the body.important || false expression will in fact return the false from the right-hand side..
       date: new Date(),
       id: generateId(),
-    }
+    })
 
     // person.save().then(savedPerson => {
     //   response.json(savedPerson)
     // })
+    await person.save()
   
-    persons = persons.concat(person)
+    // persons = persons.concat(person)
     response.json(person)
   })
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

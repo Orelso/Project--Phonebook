@@ -5,6 +5,7 @@ POST http://localhost:12000/api/persons/
 Content-Type: application/json
 
 {
-    "content": "564146465465",
+    "content": "mp",
+    "number":489,
     "important": true
 }
